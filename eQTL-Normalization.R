@@ -16,7 +16,7 @@ cere<-fread("cerebellum/gene_expression.txt",header=T)
 q.cere<-normalize.quantiles(as.matrix(cere[,-1,with=F]),copy=TRUE)
 
 
-q.cere.rankN<-t(apply(q.cere,1,function(x)scale(rank(x))))
+q.cere.rankN<-t(apply(q.cere,2,function(x)scale(rank(x))))
 q.cere.rankN<-round(q.cere.rankN,5)
 colnames(q.cere.rankN)<-colnames(cere)[-1]
 
@@ -71,7 +71,7 @@ rm(list=ls())
 pref<-fread("prefrontalcortex/gene_expression.txt",header=T)
 
 q.pref<-normalize.quantiles(as.matrix(pref[,-1,with=F]),copy=TRUE)
-q.pref.rankN<-t(apply(q.pref,1,function(x)scale(rank(x))))
+q.pref.rankN<-t(apply(q.pref,2,function(x)scale(rank(x))))
 q.pref.rankN<-round(q.pref.rankN,5)
 colnames(q.pref.rankN)<-colnames(pref)[-1]
 

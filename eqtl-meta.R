@@ -10,10 +10,8 @@ meta.annot<-meta.annot[!duplicated(meta.annot$reporter_id),]
 
 
 
-
-
 ###Vis
-covs = read.table('Pheno/pheno.ctrl.txt',header=T)
+covs = read.table('Pheno/finalcovsimputed.txt',header=T)
 vis.trans.exp<-vis[vis$reporter_id %in% meta.annot$reporter_id,]
 vis.trans.id<-vis.trans.exp[,1,with=F]
 
@@ -34,7 +32,7 @@ colnames(resid.vis)<-temp.cov$IID
 
 
 ##Cere
-covs = read.table('Pheno/pheno.ctrl.txt',header=T)
+covs = read.table('Pheno/finalcovsimputed.txt',header=T)
 cere.trans.exp<-cere[cere$reporter_id %in% meta.annot$reporter_id,]
 cere.trans.id<-cere.trans.exp[,1,with=F]
 
@@ -55,7 +53,7 @@ colnames(resid.cere)<-temp.cov$IID
 
 
 ##Pref
-covs = read.table('Pheno/pheno.ctrl.txt',header=T)
+covs = read.table('Pheno/finalcovsimputed.txt',header=T)
 pref.trans.exp<-pref[pref$reporter_id %in% meta.annot$reporter_id,]
 pref.trans.id<-pref.trans.exp[,1,with=F]
 
@@ -81,7 +79,7 @@ write.table(resid.cere,"cere.txt",quote=F,sep="\t",row.names=F)
 write.table(resid.vis,"vis.txt",quote=F,sep="\t",row.names=F)
 
 ###IDs
-covs = read.table('Pheno/pheno.ctrl.txt',header=T)
+covs = read.table('Pheno/finalcovsimputed.txt',header=T)
 vis.ids<-data.frame(id=colnames(resid.vis),"vis")
 pref.ids<-data.frame(id=colnames(resid.pref),"pref")
 cere.ids<-data.frame(id=colnames(resid.cere),"cere")
@@ -130,17 +128,15 @@ rs4809324	T	C
 rs6010620	G	A"
 
 temp.snp<-data.frame(matrix(unlist(strsplit(snps,"[\n\t]+")),ncol=3,byrow=T))
+temp.snp<-temp.snp[order(match(temp.snp$X1,names(meta.snp)[-1])),]
 temp.snp<-data.frame(temp.snp$X1,1,0,1:nrow(temp.snp),temp.snp$X2,temp.snp$X3)
+
 write.table(temp.snp,"snp.txt",row.names=F,quote=F,col.names=F,sep='\t')
 
 
 
 
 ###Meta
-
-
-
-###HPCC
 source /usr/usc/java/1.7.0_65/setup.sh
 java -jar /auto/rcf-proj/dn/eQTL/Meta-Tissue.v.0.4/MetaTissueInputGenerator.jar \
 -i /auto/rcf-proj/dn/eQTL/Meta/tissue_info.txt \
@@ -177,6 +173,8 @@ for (i in 1:length(targetSNP)){
   out[[i]]<-sapply(reporter_id[[i]],function(x)paste(targetSNP[i],x,sep=':'))
 }
 out<-unlist(out)
+
+
 output<-read.table("Meta/MetaTissue.SNP.0.metasoft.output.txt",header=T)
 
 new<-output[output$RSID %in% out,]
@@ -184,6 +182,7 @@ new$rs<-sapply(strsplit(as.character(new$RSID),":"),'[',1)
 new$reporter_id<-sapply(strsplit(as.character(new$RSID),":"),'[',2)
 
 final.new<-merge(new,annot,by="reporter_id")
+final.new<-final.new[,c(1:15,17,19,26)]
 final.new<-final.new[order(match(final.new$rs,targetSNP)),]
 names(final.new)[11:13]<-c("VisM","PrefM","CereM")
 
